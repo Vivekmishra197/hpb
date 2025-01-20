@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday!</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    .message {
+      position: absolute;
+      top: 30%;
+      text-align: center;
+      font-size: 3em;
+      font-weight: bold;
+      color: gold;
+      text-shadow: 0 0 20px gold, 0 0 30px orange, 0 0 40px red;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="message">🎉 Happy Birthday! 🎂</div>
+  <canvas id="fireworks"></canvas>
+  <script>
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particles = [];
+    const colors = ['#ff5252', '#ffb142', '#ffdd59', '#2ed573', '#1e90ff', '#3742fa', '#a55eea'];
+
+    class Particle {
+      constructor(x, y, color, angle, speed) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.radius = 2 + Math.random() * 2;
+        this.angle = angle;
+        this.speed = speed;
+        this.alpha = 1;
+        this.decay = Math.random() * 0.02 + 0.01;
+      }
+
+      update() {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.alpha -= this.decay;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    function createFirework(x, y) {
+      const particleCount = 100;
+      const angleStep = (Math.PI * 2) / particleCount;
+      for (let i = 0; i < particleCount; i++) {
+        const angle = i * angleStep;
+        const speed = Math.random() * 4 + 1;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        particles.push(new Particle(x, y, color, angle, speed));
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((particle, i) => {
+        if (particle.alpha <= 0) {
+          particles.splice(i, 1);
+        } else {
+          particle.update();
+          particle.draw();
+        }
+      });
+      requestAnimationFrame(animate);
+    }
+
+    canvas.addEventListener('click', (e) => {
+      createFirework(e.clientX, e.clientY);
+    });
+
+    setInterval(() => {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height / 2;
+      createFirework(x, y);
+    }, 800);
+
+    animate();
+  </script>
+</body>
+</html>
